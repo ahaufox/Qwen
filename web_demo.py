@@ -13,9 +13,23 @@ import mdtex2html
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
+import shutil
 
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
+CONTENT_DIR='content'
+block_css = """.importantButton {
+    background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
+    border: none !important;
+}
+.importantButton:hover {
+    background: linear-gradient(45deg, #ff00e0,#8500ff, #6e00ff) !important;
+    border: none !important;
+}"""
 
+webui_title = """
+# 🎉ChatPDF WebUI🎉
+ PS: 1080Ti 11G显存机器，约1min一条😭
+"""
 
 def _get_args():
     parser = ArgumentParser()
@@ -73,6 +87,22 @@ def postprocess(self, y):
 
 # gr.Chatbot.postprocess = postprocess
 
+def get_file_list():
+    if not os.path.exists("content"):
+        return []
+    return [f for f in os.listdir("content") if
+            f.endswith(".txt") or f.endswith(".pdf") or f.endswith(".docx") or f.endswith(".md")]
+
+
+file_list = get_file_list()
+def upload_file(file):
+    if not os.path.exists(CONTENT_DIR):
+        os.mkdir(CONTENT_DIR)
+    filename = os.path.basename(file.name)
+    shutil.move(file.name, os.path.join(CONTENT_DIR, filename))
+    # file_list首位插入新上传的文件
+    file_list.insert(0, filename)
+    return gr.Dropdown.update(choices=file_list, value=filename)
 
 def _parse_text(text):
     lines = text.split("\n")
@@ -121,7 +151,7 @@ def _launch_demo(args, model, tokenizer, config):
             yield _chatbot
             full_response = responses
 
-        print(f"History: {_task_history}")
+        # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
         print(f"Qwen-Chat: {full_response}")
 
@@ -144,22 +174,50 @@ def _launch_demo(args, model, tokenizer, config):
         torch.cuda.empty_cache()
         return _chatbot
 
-    with gr.Blocks() as demo:
+    with gr.Blocks(css=block_css) as demo:
+        file_status=gr.State("")
+
         demo.title="qwen-demo"
-        gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>""")
-        chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
-        query = gr.Textbox(lines=2, label='Input')
+        gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>\n""")
+        gr.Markdown(webui_title)
+
         task_history = gr.State([])
 
         with gr.Row():
-            empty_btn = gr.Button("🧹 Clear History (清除历史)")
-            submit_btn = gr.Button("🚀 Submit (发送)")
-            regen_btn = gr.Button("🤔️ Regenerate (重试)")
-
-        submit_btn.click(predict, [query, chatbot, task_history], [chatbot], show_progress=True)
-        submit_btn.click(reset_user_input, [], [query])
-        empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
-        regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
+            with gr.Column(scale=2):
+                chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
+                query = gr.Textbox(lines=2, label='Input')
+                empty_btn = gr.Button("🧹 Clear History (清除历史)")
+                submit_btn = gr.Button("🚀 Submit (发送)")
+                regen_btn = gr.Button("🤔️ Regenerate (重试)")
+                submit_btn.click(predict, [query, chatbot, task_history], [chatbot], show_progress=True)
+                submit_btn.click(reset_user_input, [], [query])
+                empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
+                regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
+            with gr.Column(scale=1):
+                with gr.Tab("upload"):
+                    file = gr.File(
+                        label="content file",
+                        file_types=['.txt', '.md', '.docx', '.pdf']
+                    )
+                load_file_button = gr.Button("加载文件")
+                with gr.Tab("select"):
+                    selectFile = gr.Dropdown(
+                        file_list,
+                        label="content file",
+                        interactive=True,
+                        value=file_list[0] if len(file_list) > 0 else None
+                    )
+            # 将上传的文件保存到content文件夹下,并更新下拉框
+            file.upload(upload_file, inputs=file, outputs=selectFile)
+            local_file_path = os.path.join(CONTENT_DIR, selectFile)
+            local_index_path = os.path.join(CONTENT_DIR, local_file_path)
+            load_file_button.click(
+                # get_vector_store,
+                show_progress=True,
+                # inputs=[selectFile, chatbot, embedding_model],
+                outputs=[local_file_path, chatbot],
+            )
 
     demo.queue().launch(
         share=args.share,
