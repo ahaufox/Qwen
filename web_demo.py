@@ -71,7 +71,7 @@ def postprocess(self, y):
     return y
 
 
-gr.Chatbot.postprocess = postprocess
+# gr.Chatbot.postprocess = postprocess
 
 
 def _parse_text(text):
@@ -107,20 +107,23 @@ def _parse_text(text):
 
 
 def _launch_demo(args, model, tokenizer, config):
+
     def predict(_query, _chatbot, _task_history):
-        print(f"User: {_parse_text(_query)}")
-        _chatbot.append((_parse_text(_query), ""))
+        user_input = _parse_text(_query)
+
+        print(f"User: {user_input}")
+        _chatbot.append((user_input, ""))
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
-            _chatbot[-1] = (_parse_text(_query), _parse_text(response))
-
+            responses=_parse_text(response)
+            _chatbot[-1] = (user_input,responses)
             yield _chatbot
-            full_response = _parse_text(response)
+            full_response = responses
 
         print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
-        print(f"Qwen-Chat: {_parse_text(full_response)}")
+        print(f"Qwen-Chat: {full_response}")
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
@@ -142,15 +145,8 @@ def _launch_demo(args, model, tokenizer, config):
         return _chatbot
 
     with gr.Blocks() as demo:
-        demo.title="Toy Calculator"
-        gr.Markdown("""\
-<p align="center"><img src="https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg" style="height: 80px"/><p>""")
+        demo.title="qwen-demo"
         gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>""")
-        gr.Markdown(
-            """\
-<center><font size=3>This WebUI is based on Qwen-Chat, developed by Alibaba Cloud. \
-(本WebUI基于Qwen-Chat打造，实现聊天机器人功能。)</center>""")
-
         chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
         query = gr.Textbox(lines=2, label='Input')
         task_history = gr.State([])
