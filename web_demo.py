@@ -222,12 +222,12 @@ def _launch_demo(args, model, tokenizer, config):
                     )
             # 将上传的文件保存到content文件夹下,并更新下拉框
             file.upload(upload_file, inputs=file, outputs=selectFile)
-            local_file_path = os.path.join(CONTENT_DIR, selectFile)
+            # local_file_path = os.path.join(CONTENT_DIR, selectFile)
             load_file_button.click(
                 # get_vector_store,
                 show_progress=True,
                 # inputs=[selectFile, chatbot, embedding_model],
-                outputs=[local_file_path, chatbot],
+                outputs=[selectFile, chatbot],
             )
 
     demo.queue().launch(
