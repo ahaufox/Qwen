@@ -25,10 +25,10 @@ block_css = """.importantButton {
     background: linear-gradient(45deg, #ff00e0,#8500ff, #6e00ff) !important;
     border: none !important;
 }"""
-
 webui_title = """
-# 🎉ChatPDF WebUI🎉
- PS: 1080Ti 11G显存机器，约1min一条😭
+<center><font size=8>Qwen-Chat Bot</center>\n
+# 🎉WebUI🎉
+### PS: 1080Ti 11G显存机器，约1min一条😭
 """
 
 
@@ -143,7 +143,7 @@ def _parse_text(text):
 def save_history(task_history):
     if task_history is not None:
         with open(os.path.join('history.txt'),'w+') as f:
-            f.writelines(task_history)
+            f.readlines().append(task_history)
             f.close()
         return
 
@@ -190,7 +190,7 @@ def _launch_demo(args, model, tokenizer, config):
         file_status = gr.State("")
 
         demo.title = "qwen-demo"
-        gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>\n""")
+
         gr.Markdown(webui_title)
 
         task_history = gr.State([])
