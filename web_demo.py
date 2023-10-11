@@ -14,7 +14,6 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 
-
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
 
 
@@ -108,7 +107,6 @@ def _parse_text(text):
 
 
 def _launch_demo(args, model, tokenizer, config):
-
     def predict(_query, _chatbot, _task_history):
         print(f"User: {_parse_text(_query)}")
         _chatbot.append((_parse_text(_query), ""))
@@ -144,6 +142,7 @@ def _launch_demo(args, model, tokenizer, config):
         return _chatbot
 
     with gr.Blocks() as demo:
+        gr.interface(itle="Toy Calculator", )
         gr.Markdown("""\
 <p align="center"><img src="https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg" style="height: 80px"/><p>""")
         gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>""")
@@ -151,17 +150,6 @@ def _launch_demo(args, model, tokenizer, config):
             """\
 <center><font size=3>This WebUI is based on Qwen-Chat, developed by Alibaba Cloud. \
 (本WebUI基于Qwen-Chat打造，实现聊天机器人功能。)</center>""")
-        gr.Markdown("""\
-<center><font size=4>
-Qwen-7B <a href="https://modelscope.cn/models/qwen/Qwen-7B/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-7B">🤗</a>&nbsp ｜ 
-Qwen-7B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-7B-Chat/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-7B-Chat">🤗</a>&nbsp ｜ 
-Qwen-14B <a href="https://modelscope.cn/models/qwen/Qwen-14B/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-14B">🤗</a>&nbsp ｜ 
-Qwen-14B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-14B-Chat/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-14B-Chat">🤗</a>&nbsp ｜ 
-&nbsp<a href="https://github.com/QwenLM/Qwen">Github</a></center>""")
 
         chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
         query = gr.Textbox(lines=2, label='Input')
@@ -176,13 +164,6 @@ Qwen-14B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-14B-Chat/summary">
         submit_btn.click(reset_user_input, [], [query])
         empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
         regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
-
-        gr.Markdown("""\
-<font size=2>Note: This demo is governed by the original license of Qwen. \
-We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, \
-including hate speech, violence, pornography, deception, etc. \
-(注：本演示受Qwen的许可协议限制。我们强烈建议，用户不应传播及不应允许他人传播以下内容，\
-包括但不限于仇恨言论、暴力、色情、欺诈相关的有害信息。)""")
 
     demo.queue().launch(
         share=args.share,
