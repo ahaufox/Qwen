@@ -193,15 +193,16 @@ def _launch_demo(args, model, tokenizer, config):
         gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>\n""")
         gr.Markdown(webui_title)
 
-        task_history = gr.State(['你是一个专业的数据分析师'])
-
+        task_history = gr.State([])
+        # '你是一个专业的数据分析师'
         with gr.Row():
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
                 query = gr.Textbox(lines=2, label='Input')
-                empty_btn = gr.Button("🧹 Clear History (清除历史)")
+
                 submit_btn = gr.Button("🚀 Submit (发送)")
                 regen_btn = gr.Button("🤔️ Regenerate (重试)")
+                empty_btn = gr.Button("🧹 Clear History (清除历史)").scale(2)
                 submit_btn.click(predict, [query, chatbot, task_history], [chatbot], show_progress=True)
                 submit_btn.click(reset_user_input, [], [query])
                 empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
