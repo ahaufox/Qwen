@@ -142,7 +142,7 @@ def _launch_demo(args, model, tokenizer, config):
         return _chatbot
 
     with gr.Blocks() as demo:
-        gr.interface(itle="Toy Calculator", )
+        demo.title="Toy Calculator"
         gr.Markdown("""\
 <p align="center"><img src="https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg" style="height: 80px"/><p>""")
         gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>""")
