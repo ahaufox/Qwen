@@ -202,7 +202,7 @@ def _launch_demo(args, model, tokenizer, config):
 
                 submit_btn = gr.Button("🚀 Submit (发送)")
                 regen_btn = gr.Button("🤔️ Regenerate (重试)")
-                empty_btn = gr.Button("🧹 Clear History (清除历史)").scale(2)
+                empty_btn = gr.Button("🧹 Clear History (清除历史)")
                 submit_btn.click(predict, [query, chatbot, task_history], [chatbot], show_progress=True)
                 submit_btn.click(reset_user_input, [], [query])
                 empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
