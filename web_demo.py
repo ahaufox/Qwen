@@ -141,9 +141,7 @@ def _parse_text(text):
 
 
 def save_history(task_history):
-    with open(os.path.join('history.txt'), 'w+') as f:
-        l=f.readlines()
-        f.writelines(l)
+    with open(os.path.join('history.txt'), 'a') as f:
         f.writelines(task_history)
         f.close()
 
