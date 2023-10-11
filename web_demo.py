@@ -141,11 +141,12 @@ def _parse_text(text):
 
 
 def save_history(task_history):
-    if task_history is not None:
-        with open(os.path.join('history.txt'),'w+') as f:
-            f.readlines().append(task_history)
-            f.close()
-        return
+    with open(os.path.join('history.txt'), 'w+') as f:
+        l=f.readlines().append(task_history)
+        f.writelines(l)
+        f.close()
+
+
 
 
 def _launch_demo(args, model, tokenizer, config):
