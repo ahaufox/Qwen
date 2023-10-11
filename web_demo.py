@@ -16,7 +16,7 @@ from transformers.generation import GenerationConfig
 import shutil
 
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
-CONTENT_DIR='content'
+CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
     border: none !important;
@@ -30,6 +30,7 @@ webui_title = """
 # 🎉ChatPDF WebUI🎉
  PS: 1080Ti 11G显存机器，约1min一条😭
 """
+
 
 def _get_args():
     parser = ArgumentParser()
@@ -95,6 +96,8 @@ def get_file_list():
 
 
 file_list = get_file_list()
+
+
 def upload_file(file):
     if not os.path.exists(CONTENT_DIR):
         os.mkdir(CONTENT_DIR)
@@ -103,6 +106,7 @@ def upload_file(file):
     # file_list首位插入新上传的文件
     file_list.insert(0, filename)
     return gr.Dropdown.update(choices=file_list, value=filename)
+
 
 def _parse_text(text):
     lines = text.split("\n")
@@ -136,24 +140,32 @@ def _parse_text(text):
     return text
 
 
-def _launch_demo(args, model, tokenizer, config):
+def save_history(task_history):
+    if task_history is not None:
+        with open(os.path.join('history.txt'),'w+') as f:
+            f.writelines(task_history)
+            f.close()
+        return
 
+
+def _launch_demo(args, model, tokenizer, config):
     def predict(_query, _chatbot, _task_history):
         user_input = _parse_text(_query)
-
-        print(f"User: {user_input}")
+        save_history(user_input)
+        print(f"用户: {user_input}")
         _chatbot.append((user_input, ""))
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
-            responses=_parse_text(response)
-            _chatbot[-1] = (user_input,responses)
+            responses = _parse_text(response)
+            _chatbot[-1] = (user_input, responses)
             yield _chatbot
             full_response = responses
 
         # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
-        print(f"Qwen-Chat: {full_response}")
+        print(f"小黑: {full_response}")
+        save_history(user_input)
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
@@ -175,13 +187,13 @@ def _launch_demo(args, model, tokenizer, config):
         return _chatbot
 
     with gr.Blocks(css=block_css) as demo:
-        file_status=gr.State("")
+        file_status = gr.State("")
 
-        demo.title="qwen-demo"
+        demo.title = "qwen-demo"
         gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>\n""")
         gr.Markdown(webui_title)
 
-        task_history = gr.State([])
+        task_history = gr.State(['你是一个专业的数据分析师'])
 
         with gr.Row():
             with gr.Column(scale=2):
