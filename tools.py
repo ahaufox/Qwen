@@ -2,10 +2,11 @@ import pandas as pd
 import os
 from argparse import ArgumentParser
 
+DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 
 def _get_args():
     parser = ArgumentParser()
-    parser.add_argument("-c", "--checkpoint-path", type=str, default='Qwen/Qwen-7B-Chat-Int4',
+    parser.add_argument("-c", "--checkpoint-path", type=str, default=DEFAULT_CKPT_PATH,
                         help="Checkpoint name or path, default to %(default)r")
     parser.add_argument("--cpu-only", action="store_true", help="Run demo with CPU only")
 

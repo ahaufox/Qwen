@@ -14,7 +14,6 @@ from transformers.generation import GenerationConfig
 import shutil
 
 # DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'THUDM/chatglm2-6b
-DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
