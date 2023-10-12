@@ -15,7 +15,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 import shutil
 
-DEFAULT_CKPT_PATH = 'Qwen/Qwen-14B-Chat-Int4'
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
@@ -25,14 +25,7 @@ block_css = """.importantButton {
     background: linear-gradient(45deg, #ff00e0,#8500ff, #6e00ff) !important;
     border: none !important;
 }"""
-webui_title = """
-<center><font size=8>Qwen-Chat Bot</center>\n
-# 🎉WebUI🎉
-### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
-### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
-### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭
-"""
-
+webui_title = """<center><font size=8>Qwen-Chat Bot</center>\n"""
 
 def _get_args():
     parser = ArgumentParser()
@@ -54,6 +47,7 @@ def _get_args():
 
 
 def _load_model_tokenizer(args):
+    global webui_title
     tokenizer = AutoTokenizer.from_pretrained(
         args.checkpoint_path, trust_remote_code=True, resume_download=True,
     )
@@ -75,6 +69,14 @@ def _load_model_tokenizer(args):
         args.checkpoint_path, trust_remote_code=True, resume_download=True,
     )
 
+    webui_title = """
+    <center><font size=8>Qwen-Chat Bot</center>\n
+    # 🎉WebUI🎉
+    ### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
+    ### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
+    ### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭
+    <center>当前模型<font size=8>{}</center>\n
+    """.format(args.checkpoint_path)
     return model, tokenizer, config
 
 
