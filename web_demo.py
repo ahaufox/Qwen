@@ -5,8 +5,6 @@
 
 """A simple web interactive chat demo based on gradio."""
 import os
-from argparse import ArgumentParser
-
 import gradio as gr
 import mdtex2html
 from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt
@@ -26,24 +24,6 @@ block_css = """.importantButton {
     border: none !important;
 }"""
 webui_title = """"""
-
-def _get_args():
-    parser = ArgumentParser()
-    parser.add_argument("-c", "--checkpoint-path", type=str, default=DEFAULT_CKPT_PATH,
-                        help="Checkpoint name or path, default to %(default)r")
-    parser.add_argument("--cpu-only", action="store_true", help="Run demo with CPU only")
-
-    parser.add_argument("--share", action="store_true", default=False,
-                        help="Create a publicly shareable link for the interface.")
-    parser.add_argument("--inbrowser", action="store_true", default=False,
-                        help="Automatically launch the interface in a new tab on the default browser.")
-    parser.add_argument("--server-port", type=int, default=8000,
-                        help="Demo server port.")
-    parser.add_argument("--server-name", type=str, default="127.0.0.1",
-                        help="Demo server name.")
-
-    args = parser.parse_args()
-    return args
 
 
 def _load_model_tokenizer(args):
@@ -70,11 +50,10 @@ def _load_model_tokenizer(args):
     )
 
     webui_title = """
-    <center><font size=6> # 🎉WebUI🎉</center>\n
-   
-    <center>#### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
-    #### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
-    #### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭\n
+     # <center><font size=6>🎉WebUI🎉</center>\n
+    ##### <center>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭</center>
+    ##### <center>PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭</center>
+    ##### <center>PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
     当前模型:{}</center>\n
     """.format(args.checkpoint_path)
     return model, tokenizer, config
@@ -157,17 +136,21 @@ def load_doc_files(doc_files):
     corpus = []
     if isinstance(doc_files, str):
         doc_files = [doc_files]
-    for doc_file in doc_files:
-        if doc_file.endswith('.pdf'):
-            corpus.append(extract_text_from_pdf(doc_file))
-        # elif doc_file.endswith('.docx'):
-        #     corpus = self.extract_text_from_docx(doc_file)
-        # elif doc_file.endswith('.md'):
-        #     corpus = self.extract_text_from_markdown(doc_file)
-        else:
-            corpus.append(extract_text_from_txt(doc_file))
-        # sim_model.add_corpus(corpus)
-    return corpus
+    if doc_files is None:
+        pass
+        return None
+    else:
+        for doc_file in doc_files:
+            if doc_file.endswith('.pdf'):
+                corpus.append(extract_text_from_pdf(doc_file))
+            # elif doc_file.endswith('.docx'):
+            #     corpus = self.extract_text_from_docx(doc_file)
+            # elif doc_file.endswith('.md'):
+            #     corpus = self.extract_text_from_markdown(doc_file)
+            else:
+                corpus.append(extract_text_from_txt(doc_file))
+            # sim_model.add_corpus(corpus)
+        return corpus
 
 
 def _launch_demo(args, model, tokenizer, config):
