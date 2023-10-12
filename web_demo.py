@@ -51,10 +51,8 @@ def _load_model_tokenizer(args):
 
     webui_title = """
      # <center><font size=6>🎉WebUI🎉</center>\n
-    ##### <center>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭</center>
-    ##### <center>PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭</center>
-    ##### <center>PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
-    当前模型:{}</center>\n
+    <center>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭 ;Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭;Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
+    当前模型:{}
     """.format(args.checkpoint_path)
     return model, tokenizer, config
 
@@ -163,12 +161,12 @@ def _launch_demo(args, model, tokenizer, config):
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
-            save_history(response)
+
             responses = _parse_text(response)
             _chatbot[-1] = (user_input, responses)
             yield _chatbot
             full_response = responses
-
+        save_history(full_response)
         # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
         print(f"小黑: {full_response}")

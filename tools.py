@@ -2,6 +2,7 @@ import pandas as pd
 import os
 from argparse import ArgumentParser
 
+
 def _get_args():
     parser = ArgumentParser()
     parser.add_argument("-c", "--checkpoint-path", type=str, default='Qwen/Qwen-7B-Chat-Int4',
@@ -20,10 +21,11 @@ def _get_args():
     args = parser.parse_args()
     return args
 
+
 def extract_text_from_excle(excelFile):
     # 数据文件
     excel_file = excelFile
-    excel_file_=os.path.basename(excelFile).split('.')[0]
+    excel_file_ = os.path.basename(excelFile).split('.')[0]
     excel = pd.read_excel(excel_file)  # 读取Excel表格
     excel_table_head = list(excel.columns.values)  # 读取表头
     table_head = '|'.join(excel_table_head) + "\n"  # 拼接表头
@@ -78,4 +80,10 @@ def extract_text_from_pdf(file_path: str):
 
 if __name__ == '__main__':
     file_name = './content/满意度参与详情列表2022_12_02_17_17_39.xls'
+    import pandas as pd
+    df = pd.read_excel(file_name)
+    df.to_csv('t.csv')
+    # 创建一个新的Document对象
+    # 将数据写入MD文件
+
     extract_text_from_excle(file_name)
