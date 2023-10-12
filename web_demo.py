@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 import gradio as gr
 import mdtex2html
-
+from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
@@ -25,7 +25,7 @@ block_css = """.importantButton {
     background: linear-gradient(45deg, #ff00e0,#8500ff, #6e00ff) !important;
     border: none !important;
 }"""
-webui_title = """<center><font size=8>Qwen-Chat Bot</center>\n"""
+webui_title = """"""
 
 def _get_args():
     parser = ArgumentParser()
@@ -70,12 +70,12 @@ def _load_model_tokenizer(args):
     )
 
     webui_title = """
-    <center><font size=8>Qwen-Chat Bot</center>\n
-    # 🎉WebUI🎉
-    ### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
-    ### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
-    ### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭
-    <center>当前模型<font size=8>{}</center>\n
+    <center><font size=6> # 🎉WebUI🎉</center>\n
+   
+    <center>#### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
+    #### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
+    #### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭\n
+    当前模型:{}</center>\n
     """.format(args.checkpoint_path)
     return model, tokenizer, config
 
@@ -91,7 +91,7 @@ def postprocess(self, y):
     return y
 
 
-# gr.Chatbot.postprocess = postprocess
+# gr.Chatbot.postprocess
 
 def get_file_list():
     if not os.path.exists(CONTENT_DIR):
@@ -118,14 +118,14 @@ def _parse_text(text):
     lines = [line for line in lines if line != ""]
     count = 0
     for i, line in enumerate(lines):
-        if "```" in line:
-            count += 1
-            items = line.split("`")
-            if count % 2 == 1:
-                lines[i] = f'<pre><code class="language-{items[-1]}">'
-            else:
-                lines[i] = f"<br></code></pre>"
-        else:
+        # if "pre>" in line:
+        #     count += 1
+        #     items = line.split("`")
+        #     if count % 2 == 1:
+        #         lines[i] = f'<pre><code class="language-{items[-1]}">'
+        #     else:
+        #         lines[i] = f"<br></code></pre>"
+        # else:
             if i > 0:
                 if count % 2 == 1:
                     line = line.replace("`", r"\`")
@@ -152,59 +152,31 @@ def save_history(task_history):
         f.close()
 
 
-def load_doc_files(self, doc_files):
+def load_doc_files(doc_files):
     """Load document files."""
     corpus = []
     if isinstance(doc_files, str):
         doc_files = [doc_files]
     for doc_file in doc_files:
         if doc_file.endswith('.pdf'):
-            corpus.append(self.extract_text_from_pdf(doc_file))
+            corpus.append(extract_text_from_pdf(doc_file))
         # elif doc_file.endswith('.docx'):
         #     corpus = self.extract_text_from_docx(doc_file)
         # elif doc_file.endswith('.md'):
         #     corpus = self.extract_text_from_markdown(doc_file)
         else:
-            corpus.append(self.extract_text_from_txt(doc_file))
+            corpus.append(extract_text_from_txt(doc_file))
         # sim_model.add_corpus(corpus)
     return corpus
 
 
-def extract_text_from_txt(file_path: str):
-    """Extract text content from a TXT file."""
-    contents = []
-    with open(file_path, 'r', encoding='utf-8') as f:
-        contents = [text.strip() for text in f.readlines() if text.strip()]
-    return contents
-
-
-def extract_text_from_pdf(file_path: str):
-    """Extract text content from a PDF file."""
-    import PyPDF2
-    contents = []
-    with open(file_path, 'rb') as f:
-        pdf_reader = PyPDF2.PdfReader(f)
-        for page in pdf_reader.pages:
-            page_text = page.extract_text().strip()
-            raw_text = [text.strip() for text in page_text.splitlines() if text.strip()]
-            new_text = ''
-            for text in raw_text:
-                new_text += text
-                if text[-1] in ['.', '!', '?', '。', '！', '？', '…', ';', '；', ':', '：', '”', '’', '）', '】', '》', '」',
-                                '』', '〕', '〉', '》', '〗', '〞', '〟', '»', '"', "'", ')', ']', '}']:
-                    contents.append(new_text)
-                    new_text = ''
-            if new_text:
-                contents.append(new_text)
-    return contents
-
-
 def _launch_demo(args, model, tokenizer, config):
-    def predict(_query, _chatbot, _task_history):
+    def predict(_query, _chatbot, _task_history,doc_files):
+        doc=load_doc_files(doc_files)
         user_input = _parse_text(_query)
         save_history(user_input)
         print(f"用户: {user_input}")
-        _chatbot.append((user_input, ""))
+        _chatbot.append((doc,user_input, ""))
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
@@ -228,7 +200,7 @@ def _launch_demo(args, model, tokenizer, config):
         yield from predict(item[0], _chatbot, _task_history)
 
     def reset_user_input():
-        return gr.update(value="")
+        return gr.update(value='')
 
     def reset_state(_chatbot, _task_history):
         _task_history.clear()
