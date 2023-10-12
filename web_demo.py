@@ -13,7 +13,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 import shutil
 
-DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
+# DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'THUDM/chatglm2-6b
+DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
@@ -51,7 +52,7 @@ def _load_model_tokenizer(args):
 
     webui_title = """
      # <center><font size=6>🎉WebUI🎉</center>\n
-    <center>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭 ;Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭;Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
+    <center><font size=4>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭 ;Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭;Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
     当前模型:{}
     """.format(args.checkpoint_path)
     return model, tokenizer, config
