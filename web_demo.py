@@ -7,7 +7,7 @@
 import os
 import gradio as gr
 import mdtex2html
-from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt
+from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt,_get_args
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
