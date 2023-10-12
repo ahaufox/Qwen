@@ -143,6 +143,7 @@ def _parse_text(text):
 def save_history(task_history):
     with open(os.path.join('history.txt'), 'a') as f:
         f.writelines(task_history)
+        f.writelines('\n')
         f.close()
 
 
@@ -165,7 +166,7 @@ def _launch_demo(args, model, tokenizer, config):
         # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
         print(f"小黑: {full_response}")
-        save_history(user_input)
+        save_history(full_response)
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
