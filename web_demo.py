@@ -15,7 +15,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 import shutil
 
-DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-14B-Chat-Int4'
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
@@ -28,7 +28,9 @@ block_css = """.importantButton {
 webui_title = """
 <center><font size=8>Qwen-Chat Bot</center>\n
 # 🎉WebUI🎉
-### PS: 1080Ti 11G显存机器，约1min一条😭
+### PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭
+### PS:Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭
+### PS:Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭
 """
 
 
@@ -64,6 +66,7 @@ def _load_model_tokenizer(args):
     model = AutoModelForCausalLM.from_pretrained(
         args.checkpoint_path,
         device_map=device_map,
+        torch_dtype=torch.float16,
         trust_remote_code=True,
         resume_download=True,
     ).eval()
@@ -89,9 +92,9 @@ def postprocess(self, y):
 # gr.Chatbot.postprocess = postprocess
 
 def get_file_list():
-    if not os.path.exists("content"):
+    if not os.path.exists(CONTENT_DIR):
         return []
-    return [f for f in os.listdir("content") if
+    return [f for f in os.listdir(CONTENT_DIR) if
             f.endswith(".txt") or f.endswith(".pdf") or f.endswith(".docx") or f.endswith(".md")]
 
 
@@ -147,6 +150,51 @@ def save_history(task_history):
         f.close()
 
 
+def load_doc_files(self, doc_files):
+    """Load document files."""
+    corpus = []
+    if isinstance(doc_files, str):
+        doc_files = [doc_files]
+    for doc_file in doc_files:
+        if doc_file.endswith('.pdf'):
+            corpus.append(self.extract_text_from_pdf(doc_file))
+        # elif doc_file.endswith('.docx'):
+        #     corpus = self.extract_text_from_docx(doc_file)
+        # elif doc_file.endswith('.md'):
+        #     corpus = self.extract_text_from_markdown(doc_file)
+        else:
+            corpus.append(self.extract_text_from_txt(doc_file))
+        # sim_model.add_corpus(corpus)
+    return corpus
+
+
+def extract_text_from_txt(file_path: str):
+    """Extract text content from a TXT file."""
+    contents = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        contents = [text.strip() for text in f.readlines() if text.strip()]
+    return contents
+
+
+def extract_text_from_pdf(file_path: str):
+    """Extract text content from a PDF file."""
+    import PyPDF2
+    contents = []
+    with open(file_path, 'rb') as f:
+        pdf_reader = PyPDF2.PdfReader(f)
+        for page in pdf_reader.pages:
+            page_text = page.extract_text().strip()
+            raw_text = [text.strip() for text in page_text.splitlines() if text.strip()]
+            new_text = ''
+            for text in raw_text:
+                new_text += text
+                if text[-1] in ['.', '!', '?', '。', '！', '？', '…', ';', '；', ':', '：', '”', '’', '）', '】', '》', '」',
+                                '』', '〕', '〉', '》', '〗', '〞', '〟', '»', '"', "'", ')', ']', '}']:
+                    contents.append(new_text)
+                    new_text = ''
+            if new_text:
+                contents.append(new_text)
+    return contents
 
 
 def _launch_demo(args, model, tokenizer, config):
@@ -158,6 +206,7 @@ def _launch_demo(args, model, tokenizer, config):
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
+            save_history(response)
             responses = _parse_text(response)
             _chatbot[-1] = (user_input, responses)
             yield _chatbot
@@ -166,7 +215,7 @@ def _launch_demo(args, model, tokenizer, config):
         # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
         print(f"小黑: {full_response}")
-        save_history(full_response)
+
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
