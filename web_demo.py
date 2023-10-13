@@ -170,7 +170,7 @@ def _launch_demo(args, model, tokenizer):
 
                 submit_btn = gr.Button("🚀 Submit (发送)")
                 regen_btn = gr.Button("🤔️ Regenerate (重试)")
-                empty_btn = gr.Button("🧹 Clear History (清除历史)")
+                # empty_btn = gr.Button("🧹 Clear History (清除历史)")
                 submit_btn.click(predict, [query, chatbot, task_history], [chatbot,task_history], show_progress=True)
                 submit_btn.click(reset_user_input, [], [query])
                 regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
@@ -189,7 +189,7 @@ def _launch_demo(args, model, tokenizer):
                         value=file_list[0] if len(file_list) > 0 else None
                     )
             # 将上传的文件保存到content文件夹下,并更新下拉框
-            file.upload(upload_file, inputs=[gr, file], outputs=selectFile)
+            file.upload(upload_file, inputs=file, outputs=selectFile)
             # local_file_path = os.path.join(CONTENT_DIR, selectFile)
             load_file_button.click(
                 # get_vector_store,

@@ -98,14 +98,14 @@ def get_file_list():
 file_list = get_file_list()
 
 
-def upload_file(gr,file):
+def upload_file(file):
     if not os.path.exists(CONTENT_DIR):
         os.mkdir(CONTENT_DIR)
     filename = os.path.basename(file.name)
     shutil.move(file.name, os.path.join(CONTENT_DIR, filename))
     # file_list首位插入新上传的文件
     file_list.insert(0, filename)
-    return gr.Dropdown.update(choices=file_list, value=filename)
+    return file_list
 
 def load_doc_files(doc_files):
     """Load document files."""
