@@ -1,8 +1,11 @@
 import pandas as pd
 import os
 from argparse import ArgumentParser
+import shutil
 
 DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
+CONTENT_DIR = 'content'
+
 
 def _get_args():
     parser = ArgumentParser()
@@ -79,9 +82,55 @@ def extract_text_from_pdf(file_path: str):
     return contents
 
 
+def save_history(task_history):
+    with open(os.path.join('history.txt'), 'a') as f:
+        f.writelines(task_history)
+        f.writelines('\n')
+        f.close()
+
+def get_file_list():
+    if not os.path.exists(CONTENT_DIR):
+        return []
+    return [f for f in os.listdir(CONTENT_DIR) if
+            f.endswith(".txt") or f.endswith(".pdf") or f.endswith(".docx") or f.endswith(".md")]
+
+
+file_list = get_file_list()
+
+
+def upload_file(gr,file):
+    if not os.path.exists(CONTENT_DIR):
+        os.mkdir(CONTENT_DIR)
+    filename = os.path.basename(file.name)
+    shutil.move(file.name, os.path.join(CONTENT_DIR, filename))
+    # file_list首位插入新上传的文件
+    file_list.insert(0, filename)
+    return gr.Dropdown.update(choices=file_list, value=filename)
+
+def load_doc_files(doc_files):
+    """Load document files."""
+    corpus = []
+    if isinstance(doc_files, str):
+        doc_files = [doc_files]
+    if doc_files is None:
+        pass
+        return None
+    else:
+        for doc_file in doc_files:
+            if doc_file.endswith('.pdf'):
+                corpus.append(extract_text_from_pdf(doc_file))
+            # elif doc_file.endswith('.docx'):
+            #     corpus = self.extract_text_from_docx(doc_file)
+            # elif doc_file.endswith('.md'):
+            #     corpus = self.extract_text_from_markdown(doc_file)
+            else:
+                corpus.append(extract_text_from_txt(doc_file))
+            # sim_model.add_corpus(corpus)
+        return corpus
 if __name__ == '__main__':
     file_name = './content/满意度参与详情列表2022_12_02_17_17_39.xls'
     import pandas as pd
+
     df = pd.read_excel(file_name)
     df.to_csv('t.csv')
     # 创建一个新的Document对象
