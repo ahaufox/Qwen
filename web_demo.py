@@ -127,20 +127,18 @@ def _launch_demo(args, model, tokenizer):
         save_history(user_input)
         print(f"用户: {user_input}")
         _chatbot.append((doc, user_input, ""))
-        full_response = ""
+        responses=''
+        for response in model.stream_chat(tokenizer, _query, history=_task_history,
+                                          # generation_config=config
+                                          ):
+            responses = _parse_text(response)
+            _chatbot[-1] = (user_input, responses)
 
-        # for response in model.chat_stream(tokenizer, _query, history=_task_history,
-        #                                   # generation_config=config
-        #                                   ):
-        #     responses = _parse_text(response)
-        #     _chatbot[-1] = (user_input, responses)
-        #     yield _chatbot,history
-        #     full_response = responses
-        save_history(full_response)
+        save_history(responses)
         # print(f"History: {_task_history}")
-        _task_history.append((_query, full_response))
+        _task_history.append((_query, responses))
         yield _chatbot, _task_history
-        print(f"小黑: {full_response}")
+        print(f"小黑: {responses}")
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
