@@ -54,7 +54,7 @@ def _load_model_tokenizer(args):
         device_map=device_map,
         trust_remote_code=True,
         resume_download=True,
-    ).half().cuda()
+    ).half()
     model=model.eval()
 
     config = GenerationConfig.from_pretrained(
