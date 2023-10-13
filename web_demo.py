@@ -37,7 +37,7 @@ MODEL_CLASSES = {
 
 
 def postprocess(self, y):
-    print('y:',y,enumerate(y))
+    print('y:',y)
     # [(None, '你好', '')]
     if y is None:
         return []
