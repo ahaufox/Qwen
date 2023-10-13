@@ -67,7 +67,7 @@ def _load_model_tokenizer(args):
     <center><font size=4>PS:Qwen/Qwen-7B-Chat-Int4 8G左右显存 1080Ti 约30s一条😭 ;Qwen/Qwen-7B-Chat 8G左右显存 1080Ti 约2min一条😭;Qwen/Qwen-14B-Chat-Int4 8G左右显存 1080Ti 约1min一条😭</center>\n
     当前模型:{}
     """.format(args.checkpoint_path)
-    return model, tokenizer, config
+    return model, tokenizer
 
 
 def postprocess(self, y):
@@ -173,7 +173,9 @@ def _launch_demo(args, model, tokenizer, config):
         _chatbot.append((doc,user_input, ""))
         full_response = ""
 
-        for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
+        for response in model.chat_stream(tokenizer, _query, history=_task_history,
+                                          # generation_config=config
+                                          ):
 
             responses = _parse_text(response)
             _chatbot[-1] = (user_input, responses)
