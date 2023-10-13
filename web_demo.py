@@ -7,14 +7,16 @@
 import os
 import gradio as gr
 import mdtex2html
-from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt,_get_args
+from tools import extract_text_from_excle, extract_text_from_pdf, extract_text_from_txt, _get_args
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 import shutil
+import warnings
 
-# DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'THUDM/chatglm2-6b
-DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
+warnings.filterwarnings('ignore')
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
+# DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
@@ -104,21 +106,21 @@ def _parse_text(text):
         #     else:
         #         lines[i] = f"<br></code></pre>"
         # else:
-            if i > 0:
-                if count % 2 == 1:
-                    line = line.replace("`", r"\`")
-                    line = line.replace("<", "&lt;")
-                    line = line.replace(">", "&gt;")
-                    line = line.replace(" ", "&nbsp;")
-                    line = line.replace("*", "&ast;")
-                    line = line.replace("_", "&lowbar;")
-                    line = line.replace("-", "&#45;")
-                    line = line.replace(".", "&#46;")
-                    line = line.replace("!", "&#33;")
-                    line = line.replace("(", "&#40;")
-                    line = line.replace(")", "&#41;")
-                    line = line.replace("$", "&#36;")
-                lines[i] = "<br>" + line
+        if i > 0:
+            if count % 2 == 1:
+                line = line.replace("`", r"\`")
+                line = line.replace("<", "&lt;")
+                line = line.replace(">", "&gt;")
+                line = line.replace(" ", "&nbsp;")
+                line = line.replace("*", "&ast;")
+                line = line.replace("_", "&lowbar;")
+                line = line.replace("-", "&#45;")
+                line = line.replace(".", "&#46;")
+                line = line.replace("!", "&#33;")
+                line = line.replace("(", "&#40;")
+                line = line.replace(")", "&#41;")
+                line = line.replace("$", "&#36;")
+            lines[i] = "<br>" + line
     text = "".join(lines)
     return text
 
@@ -153,16 +155,15 @@ def load_doc_files(doc_files):
 
 
 def _launch_demo(args, model, tokenizer, config):
-    def predict(_query, _chatbot, _task_history,doc_files):
-        doc=load_doc_files(doc_files)
+    def predict(_query, _chatbot, _task_history, doc_files):
+        doc = load_doc_files(doc_files)
         user_input = _parse_text(_query)
         save_history(user_input)
         print(f"用户: {user_input}")
-        _chatbot.append((doc,user_input, ""))
+        _chatbot.append((doc, user_input, ""))
         full_response = ""
 
         for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
-
             responses = _parse_text(response)
             _chatbot[-1] = (user_input, responses)
             yield _chatbot
@@ -171,7 +172,6 @@ def _launch_demo(args, model, tokenizer, config):
         # print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
         print(f"小黑: {full_response}")
-
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
