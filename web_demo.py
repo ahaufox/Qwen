@@ -141,9 +141,9 @@ def _launch_demo(args, model, tokenizer):
                                                   ):
                     responses = _parse_text(response)
                     _chatbot[-1] = (user_input, responses)
-                    fresponses=responses
+                    fresponses=fresponses+responses
         print('responses:',fresponses)
-        save_history(responses)
+        save_history(fresponses)
         # print(f"History: {_task_history}")
         _task_history.append((_query, responses))
         yield _chatbot, _task_history
