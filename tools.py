@@ -128,6 +128,13 @@ def load_doc_files(doc_files):
             # sim_model.add_corpus(corpus)
         return corpus
 if __name__ == '__main__':
+    import time
+
+    # y=[(None, '你好', '')]
+    # print(enumerate(y))
+    # for i, (message,response,h) in enumerate(y):
+    #     print(i,message,response,h)
+    # time.sleep(101)
     file_name = './content/满意度参与详情列表2022_12_02_17_17_39.xls'
     import pandas as pd
 

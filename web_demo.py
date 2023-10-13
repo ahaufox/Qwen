@@ -37,10 +37,11 @@ MODEL_CLASSES = {
 
 
 def postprocess(self, y):
-    print('y:',y)
+    print('y:',y,enumerate(y))
+    # [(None, '你好', '')]
     if y is None:
         return []
-    for i, message,response in enumerate(y):
+    for i, (message,response,h) in enumerate(y):
         y[i] = (
             None if message is None else mdtex2html.convert((message)),
             None if response is None else mdtex2html.convert(response),
