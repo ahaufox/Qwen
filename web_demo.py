@@ -153,13 +153,6 @@ def _launch_demo(args, model, tokenizer):
     def reset_user_input():
         return gr.update(value='')
 
-    def reset_state(_chatbot, _task_history):
-        _task_history.clear()
-        _chatbot.clear()
-        import gc
-        gc.collect()
-        torch.cuda.empty_cache()
-        return _chatbot
 
     with gr.Blocks(css=block_css) as demo:
         file_status = gr.State("")
@@ -180,7 +173,6 @@ def _launch_demo(args, model, tokenizer):
                 empty_btn = gr.Button("🧹 Clear History (清除历史)")
                 submit_btn.click(predict, [query, chatbot, task_history], [chatbot,task_history], show_progress=True)
                 submit_btn.click(reset_user_input, [], [query])
-                empty_btn.click(reset_state, [chatbot, task_history], outputs=[chatbot], show_progress=True)
                 regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
             with gr.Column(scale=1):
                 with gr.Tab("upload"):
