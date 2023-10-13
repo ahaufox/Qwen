@@ -9,11 +9,11 @@ import gradio as gr
 import mdtex2html
 from tools import extract_text_from_excle,extract_text_from_pdf,extract_text_from_txt,_get_args
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer,BloomForCausalLM, BloomTokenizerFast,AutoModel
 from transformers.generation import GenerationConfig
 import shutil
 
-# DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'THUDM/chatglm2-6b
+# DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'T
 CONTENT_DIR = 'content'
 block_css = """.importantButton {
     background: linear-gradient(45deg, #7e0570,#5d1c99, #6e00ff) !important;
@@ -24,11 +24,23 @@ block_css = """.importantButton {
     border: none !important;
 }"""
 webui_title = """"""
-
+MODEL_CLASSES = {
+    "chatglm": (AutoModel, AutoTokenizer),
+    "llama": (AutoModelForCausalLM, AutoTokenizer),
+    "Qwen": (AutoModelForCausalLM, AutoTokenizer),
+    'auto':(AutoModel, AutoTokenizer)
+}
 
 def _load_model_tokenizer(args):
     global webui_title
-    tokenizer = AutoTokenizer.from_pretrained(
+    model_type_keys = MODEL_CLASSES.keys()
+    for k in model_type_keys:
+        if k in args.checkpoint_path:
+            model_class, tokenizer_class = MODEL_CLASSES[k]
+            break
+        else:
+            model_class, tokenizer_class = MODEL_CLASSES['auto']
+    tokenizer = tokenizer_class.from_pretrained(
         args.checkpoint_path, trust_remote_code=True, resume_download=True,
     )
 
@@ -37,13 +49,13 @@ def _load_model_tokenizer(args):
     else:
         device_map = "auto"
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = model_class.from_pretrained(
         args.checkpoint_path,
         device_map=device_map,
-        torch_dtype=torch.float16,
         trust_remote_code=True,
         resume_download=True,
-    ).eval()
+    ).half().cuda()
+    model=model.eval()
 
     config = GenerationConfig.from_pretrained(
         args.checkpoint_path, trust_remote_code=True, resume_download=True,
