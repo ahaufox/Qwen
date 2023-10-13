@@ -41,7 +41,7 @@ def postprocess(self, y):
     # [(None, '你好', '')]
     if y is None:
         return []
-    for i, (message,response,h) in enumerate(y):
+    for i, (message,response) in enumerate(y):
         y[i] = (
             None if message is None else mdtex2html.convert((message)),
             None if response is None else mdtex2html.convert(response),
