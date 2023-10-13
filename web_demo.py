@@ -39,6 +39,9 @@ def _load_model_tokenizer(args):
             model_class, tokenizer_class = MODEL_CLASSES[k]
             break
         else:
+            config = GenerationConfig.from_pretrained(
+                args.checkpoint_path, trust_remote_code=True, resume_download=True,
+            )
             model_class, tokenizer_class = MODEL_CLASSES['auto']
     tokenizer = tokenizer_class.from_pretrained(
         args.checkpoint_path, trust_remote_code=True, resume_download=True,
@@ -57,9 +60,7 @@ def _load_model_tokenizer(args):
     ).half()
     model=model.eval()
 
-    config = GenerationConfig.from_pretrained(
-        args.checkpoint_path, trust_remote_code=True, resume_download=True,
-    )
+
 
     webui_title = """
      # <center><font size=6>🎉WebUI🎉</center>\n
