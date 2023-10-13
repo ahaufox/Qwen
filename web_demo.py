@@ -35,6 +35,7 @@ MODEL_CLASSES = {
 
 
 def postprocess(self, y):
+    print('y:',y)
     if y is None:
         return []
     for i, (response) in enumerate(y):
