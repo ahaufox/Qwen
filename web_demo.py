@@ -127,7 +127,7 @@ def _launch_demo(args, model, tokenizer):
         save_history(user_input)
         print(f"用户: {user_input}")
         _chatbot.append((doc, user_input, ""))
-        responses=''
+        fresponses=''
         if 'llm' in args.checkpoint_path:
             print('llm模型……')
             for response in model.chat_stream(tokenizer, _query, history=_task_history,
@@ -141,7 +141,8 @@ def _launch_demo(args, model, tokenizer):
                                                   ):
                     responses = _parse_text(response)
                     _chatbot[-1] = (user_input, responses)
-        print('responses:',responses)
+                    fresponses=responses
+        print('responses:',fresponses)
         save_history(responses)
         # print(f"History: {_task_history}")
         _task_history.append((_query, responses))
