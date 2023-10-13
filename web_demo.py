@@ -139,6 +139,7 @@ def _launch_demo(args, model, tokenizer):
                 for response ,_task_history in model.stream_chat(tokenizer, _query, history=_task_history,
                                                   # generation_config=config
                                                   ):
+                    print(responses,_task_history)
                     responses = _parse_text(response)
                     _chatbot[-1] = (user_input, responses)
                     fresponses=fresponses+responses
