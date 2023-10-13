@@ -164,7 +164,7 @@ def load_doc_files(doc_files):
         return corpus
 
 
-def _launch_demo(args, model, tokenizer, config):
+def _launch_demo(args, model, tokenizer):
     def predict(_query, _chatbot, _task_history,doc_files):
         doc=load_doc_files(doc_files)
         user_input = _parse_text(_query)
@@ -262,9 +262,9 @@ def _launch_demo(args, model, tokenizer, config):
 def main():
     args = _get_args()
 
-    model, tokenizer, config = _load_model_tokenizer(args)
+    model, tokenizer = _load_model_tokenizer(args)
 
-    _launch_demo(args, model, tokenizer, config)
+    _launch_demo(args, model, tokenizer)
 
 
 if __name__ == '__main__':
