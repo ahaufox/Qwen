@@ -12,6 +12,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BloomForCausalLM, BloomTokenizerFast, AutoModel
 from transformers.generation import GenerationConfig
 import shutil
+import warnings
+warnings.filterwarnings('ignore')
 
 # DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'T
 
@@ -38,9 +40,9 @@ def postprocess(self, y):
     print('y:',y)
     if y is None:
         return []
-    for i, (response) in enumerate(y):
+    for i, message,response in enumerate(y):
         y[i] = (
-            # None if message is None else mdtex2html.convert((message)),
+            None if message is None else mdtex2html.convert((message)),
             None if response is None else mdtex2html.convert(response),
         )
     return y
