@@ -128,7 +128,13 @@ def _launch_demo(args, model, tokenizer):
         print(f"用户: {user_input}")
         _chatbot.append((doc, user_input, ""))
         responses=''
-        for response in model.stream_chat(tokenizer, _query, history=_task_history,
+        if 'llm' in args.checkpoint_path:
+            for response in model.chat_stream(tokenizer, _query, history=_task_history,
+                                              # generation_config=config
+                                              ):
+                responses = _parse_text(response)
+                _chatbot[-1] = (user_input, responses)
+        for response ,_task_history in model.stream_chat(tokenizer, _query, history=_task_history,
                                           # generation_config=config
                                           ):
             responses = _parse_text(response)
