@@ -3,8 +3,9 @@ import os
 from argparse import ArgumentParser
 import shutil
 
-DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
 CONTENT_DIR = 'content'
+
 
 
 def _get_args():
