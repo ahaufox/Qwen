@@ -1,2 +1,9 @@
-gradio
+gradio==3.40.0
 mdtex2html
+transformers==4.32.0
+accelerate
+tiktoken
+einops
+transformers_stream_generator==0.0.4
+scipy
+charset-normalizer==3.1.0

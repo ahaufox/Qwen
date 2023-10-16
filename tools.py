@@ -3,9 +3,9 @@ import os
 from argparse import ArgumentParser
 import shutil
 
-DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
+# DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 CONTENT_DIR = 'content'
-
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
 
 
 def _get_args():
@@ -84,9 +84,10 @@ def extract_text_from_pdf(file_path: str):
 
 
 def save_history(task_history):
-    with open(os.path.join('history.txt'), 'a') as f:
+    with open(os.path.join('history.md'), 'a') as f:
         f.writelines(task_history)
         f.writelines('\n')
+        f.writelines('<br>')
         f.close()
 
 def get_file_list():
@@ -114,7 +115,6 @@ def load_doc_files(doc_files):
     if isinstance(doc_files, str):
         doc_files = [doc_files]
     if doc_files is None:
-        pass
         return None
     else:
         for doc_file in doc_files:
@@ -128,6 +128,7 @@ def load_doc_files(doc_files):
                 corpus.append(extract_text_from_txt(doc_file))
             # sim_model.add_corpus(corpus)
         return corpus
+
 if __name__ == '__main__':
     import time
 
