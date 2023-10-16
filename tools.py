@@ -1,12 +1,11 @@
 import pandas as pd
 import os
 from argparse import ArgumentParser
-import shutil
+import shutil,json
 
 # DEFAULT_CKPT_PATH = 'THUDM/chatglm2-6b'
 CONTENT_DIR = 'content'
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat-Int4'
-
 
 def _get_args():
     parser = ArgumentParser()
@@ -90,6 +89,7 @@ def save_history(task_history):
         f.writelines('<br>')
         f.close()
 
+
 def get_file_list():
     if not os.path.exists(CONTENT_DIR):
         return []
@@ -108,6 +108,7 @@ def upload_file(file):
     # file_list首位插入新上传的文件
     file_list.insert(0, filename)
     return file_list
+
 
 def load_doc_files(doc_files):
     """Load document files."""
@@ -128,6 +129,7 @@ def load_doc_files(doc_files):
                 corpus.append(extract_text_from_txt(doc_file))
             # sim_model.add_corpus(corpus)
         return corpus
+
 
 if __name__ == '__main__':
     import time
