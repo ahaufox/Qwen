@@ -1,12 +1,14 @@
 from langchain.tools import GoogleSearchResults, PythonAstREPLTool, GoogleSearchRun
 from argparse import ArgumentParser
 import langchain
+import warnings
+
 import json, os
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation import GenerationConfig
 from langchain.utilities.google_search import GoogleSearchAPIWrapper
 from typing import Dict, Tuple
-
+warnings.filterwarnings('ignore')
 google_api_key = 'AIzaSyAmhsM4aHaontjLQyTKnOITuSITFQ-lptM'
 os.environ['google_api_key'] = 'AIzaSyAmhsM4aHaontjLQyTKnOITuSITFQ-lptM'
 google_cse_id = '90e04cfa594ec4096'
